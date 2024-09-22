@@ -1,14 +1,13 @@
 # library imports
 import pygame
 import random
-import numpy
-import math
 
 
 # local imports
 from color import WHITE, BLACK
 from managers import Game_Manager
-from entities import Player
+from entities import Player, Ball
+from walls import *
 
 pygame.init()
 
@@ -18,28 +17,12 @@ info_object = pygame.display.Info()
 screen = pygame.display.set_mode((0.4 * info_object.current_w, 0.8 * info_object.current_h))
 Game_Manager.update_screen_size()
 
-player = Player()
+Game_Manager.player = Player()
+Game_Manager.ball  = Ball()
+Wall_Top()
+Wall_Left()
+Wall_Right()
 
-# sets size and position for left wall and add it to the draw queue
-wall_left = pygame.rect.Rect(0 * Game_Manager.screen_width,
-                            0 * Game_Manager.screen_height, 
-                            0.02 * Game_Manager.screen_width, 
-                            1 * Game_Manager.screen_height)
-Game_Manager.draw[0].append(lambda screen : pygame.draw.rect(screen,WHITE, wall_left))
-
-# sets size and position for right wall and add it to the draw queue
-wall_right = pygame.rect.Rect(0.98 * Game_Manager.screen_width,
-                            0 * Game_Manager.screen_height, 
-                            0.02 * Game_Manager.screen_width, 
-                            1 * Game_Manager.screen_height)
-Game_Manager.draw[0].append(lambda screen : pygame.draw.rect(screen,WHITE, wall_right))
-
-# sets size and position for top wall and add it to the draw queue
-wall_top = pygame.rect.Rect(0 * Game_Manager.screen_width,
-                            0 * Game_Manager.screen_height, 
-                            1 * Game_Manager.screen_width, 
-                            0.05 * Game_Manager.screen_height)
-Game_Manager.draw[0].append(lambda screen : pygame.draw.rect(screen,WHITE, wall_top))
 
 
 # game loop
