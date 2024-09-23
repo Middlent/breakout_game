@@ -1,6 +1,10 @@
 import pygame
 
 class Game_Manager():
+    game_started = False
+    score = 0
+    lives = 3
+
     screen_width = 0
     screen_height = 0
 
@@ -10,6 +14,11 @@ class Game_Manager():
 
     player = None
     ball = None
+
+    def start_game():
+        Game_Manager.game_started = True
+        Game_Manager.score = 0
+        Game_Manager.lives = 3
 
     def update_screen_size():
         info = pygame.display.Info()

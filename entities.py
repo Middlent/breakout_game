@@ -57,9 +57,6 @@ class Player():
 
         if self.rect.colliderect(Game_Manager.ball.rect):
             Game_Manager.ball.returning = False
-            print(Game_Manager.ball.rect.left)
-            print(self.rect.left)
-            print(self.rect.width)
             if Game_Manager.ball.rect.centerx < self.rect.left + 2 * self.rect.width/5:
                 Game_Manager.ball.bounce(self.rect, Ball.COLLISION_UP, Ball.COLLISION_MODE_FORCE_LEFT)
             elif Game_Manager.ball.rect.centerx > self.rect.left + 3 * self.rect.width/5:
@@ -103,16 +100,17 @@ class Brick():
     def process(self):
         if self.rect.colliderect(Game_Manager.ball.rect) and not Game_Manager.ball.returning:
             Game_Manager.ball.bounce(self.rect, Ball.COLLISION_DOWN)
-            if self.color == YELLOW:
-                Game_Manager.ball.speed += 0.0001 * Game_Manager.screen_width
-            if self.color == GREEN:
-                Game_Manager.ball.speed += 0.0005 * Game_Manager.screen_width
-            if self.color == ORANGE:
-                Game_Manager.ball.speed += 0.0009 * Game_Manager.screen_width
-            if self.color == RED:
-                Game_Manager.ball.speed += 0.0013 * Game_Manager.screen_width
-            Game_Manager.ball.returning = True
-            self.destroy()
+            if(Game_Manager.game_started):
+                if self.color == YELLOW:
+                    Game_Manager.ball.speed += 0.0001 * Game_Manager.screen_width
+                if self.color == GREEN:
+                    Game_Manager.ball.speed += 0.0005 * Game_Manager.screen_width
+                if self.color == ORANGE:
+                    Game_Manager.ball.speed += 0.0009 * Game_Manager.screen_width
+                if self.color == RED:
+                    Game_Manager.ball.speed += 0.0013 * Game_Manager.screen_width
+                Game_Manager.ball.returning = True
+                self.destroy()
     
     def destroy(self):
         Game_Manager.draw[1].remove(self.draw)
@@ -152,11 +150,15 @@ class Ball():
         Game_Manager.process.append(self.process)
 
     def process(self):
-        self.speed_h = math.sin(math.radians(self.angle)) * self.speed
-        self.speed_v = math.cos(math.radians(self.angle)) * self.speed
+        self.speed_v = math.sin(math.radians(self.angle)) * self.speed
+        self.speed_h = math.cos(math.radians(self.angle)) * self.speed
 
-        self.rect.y += self.speed_h
-        self.rect.x += self.speed_v
+        self.rect.y += self.speed_v
+        self.rect.x += self.speed_h
+
+    def destroy(self):
+        Game_Manager.draw[1].remove(self.draw)
+        Game_Manager.process.remove(self.process)
     
     def bounce(self, collider, collision_side, collision_mode = 1):
         if collision_side == Ball.COLLISION_UP:
@@ -188,3 +190,37 @@ class Ball():
 
     def draw(self, screen):
         pygame.draw.rect(screen, WHITE, self.rect)
+
+class Placeholder():
+    def __init__(self):
+        self.rect = pygame.rect.Rect(0,
+                            0.9 * Game_Manager.screen_height, 
+                            Game_Manager.screen_width, 
+                            0.02 * Game_Manager.screen_height)
+        
+        Game_Manager.draw[1].append(self.draw)
+        Game_Manager.event.append(self.event)
+        Game_Manager.process.append(self.process)
+
+    def event(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE and not Game_Manager.game_started:
+                self.destroy()
+                Game_Manager.start_game()
+                Game_Manager.player = Player()
+                Game_Manager.ball.destroy()
+                Game_Manager.ball = Ball()
+
+        
+    def destroy(self):
+        Game_Manager.draw[1].remove(self.draw)
+        Game_Manager.process.remove(self.process)
+        Game_Manager.event.remove(self.event)
+
+    def process(self):
+        if self.rect.colliderect(Game_Manager.ball.rect):
+            Game_Manager.ball.returning = False
+            Game_Manager.ball.bounce(self.rect, Ball.COLLISION_UP)
+    
+    def draw(self, screen):
+        pygame.draw.rect(screen, BLUE, self.rect)

@@ -6,7 +6,7 @@ import random
 # local imports
 from color import WHITE, BLACK
 from managers import Game_Manager
-from entities import Player, Ball, Bricks
+from entities import Placeholder, Ball, Bricks
 from walls import *
 
 pygame.init()
@@ -17,12 +17,13 @@ info_object = pygame.display.Info()
 screen = pygame.display.set_mode((0.4 * info_object.current_w, 0.8 * info_object.current_h))
 Game_Manager.update_screen_size()
 
-Game_Manager.player = Player()
 Game_Manager.ball  = Ball()
+
 Wall_Top()
 Wall_Left()
 Wall_Right()
 Bricks()
+Placeholder()
 
 
 # game loop
@@ -36,6 +37,7 @@ while game_loop:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             game_loop = False
+                
         for event_func in Game_Manager.event:
             event_func(event)
 
