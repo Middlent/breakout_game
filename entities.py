@@ -56,9 +56,13 @@ class Player():
                 self.rect.left = self.limit_left.right
 
         if self.rect.colliderect(Game_Manager.ball.rect):
-            if Game_Manager.ball.rect.left < self.rect.left + self.rect.width/3:
+            Game_Manager.ball.returning = False
+            print(Game_Manager.ball.rect.left)
+            print(self.rect.left)
+            print(self.rect.width)
+            if Game_Manager.ball.rect.centerx < self.rect.left + 2 * self.rect.width/5:
                 Game_Manager.ball.bounce(self.rect, Ball.COLLISION_UP, Ball.COLLISION_MODE_FORCE_LEFT)
-            elif Game_Manager.ball.rect.left > self.rect.left + 3 * self.rect.width/3:
+            elif Game_Manager.ball.rect.centerx > self.rect.left + 3 * self.rect.width/5:
                 Game_Manager.ball.bounce(self.rect, Ball.COLLISION_UP, Ball.COLLISION_MODE_FORCE_RIGHT)
             else:
                 Game_Manager.ball.bounce(self.rect, Ball.COLLISION_UP)
@@ -70,11 +74,54 @@ class Player():
 
 class Bricks():
     def __init__(self):
-        pass
+        color = RED
+        for i in range(8):
+            if i == 2:
+                color = ORANGE
+            if i == 4:
+                color = GREEN
+            if i == 6:
+                color = YELLOW
+            for j in range(14):
+                Brick(color,(
+                    j * (Game_Manager.screen_width * 0.95)/14 + 0.025 * Game_Manager.screen_height,
+                    i * 0.025 * Game_Manager.screen_height + 0.2 * Game_Manager.screen_height
+                    ))
 
 class Brick():
     def __init__(self, color, pos):
-        pass
+        self.color = color
+        self.rect = pygame.rect.Rect(pos[0],
+                            pos[1], 
+                            Game_Manager.screen_width/16, 
+                            Game_Manager.screen_height/50)
+        
+        Game_Manager.draw[1].append(self.draw)
+        Game_Manager.process.append(self.process)
+
+
+    def process(self):
+        if self.rect.colliderect(Game_Manager.ball.rect) and not Game_Manager.ball.returning:
+            Game_Manager.ball.bounce(self.rect, Ball.COLLISION_DOWN)
+            if self.color == YELLOW:
+                Game_Manager.ball.speed += 0.0001 * Game_Manager.screen_width
+            if self.color == GREEN:
+                Game_Manager.ball.speed += 0.0005 * Game_Manager.screen_width
+            if self.color == ORANGE:
+                Game_Manager.ball.speed += 0.0009 * Game_Manager.screen_width
+            if self.color == RED:
+                Game_Manager.ball.speed += 0.0013 * Game_Manager.screen_width
+            Game_Manager.ball.returning = True
+            self.destroy()
+    
+    def destroy(self):
+        Game_Manager.draw[1].remove(self.draw)
+        Game_Manager.process.remove(self.process)
+
+    def draw(self, screen):
+        pygame.draw.rect(screen, self.color, self.rect)
+
+    
 
 class Ball():
     COLLISION_UP = 0
@@ -98,6 +145,8 @@ class Ball():
 
         self.speed_h = 0
         self.speed_v = 0
+
+        self.returning = False
 
         Game_Manager.draw[1].append(self.draw)
         Game_Manager.process.append(self.process)

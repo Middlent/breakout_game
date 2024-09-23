@@ -55,6 +55,7 @@ class Wall_Top():
     def process(self):
         if self.rect.colliderect(Game_Manager.ball.rect):
             Game_Manager.ball.bounce(self.rect, Ball.COLLISION_DOWN)
+            Game_Manager.ball.returning = False
     
     def draw(self, screen):
         pygame.draw.rect(screen, WHITE, self.rect)

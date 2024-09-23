@@ -6,7 +6,7 @@ import random
 # local imports
 from color import WHITE, BLACK
 from managers import Game_Manager
-from entities import Player, Ball
+from entities import Player, Ball, Bricks
 from walls import *
 
 pygame.init()
@@ -22,7 +22,7 @@ Game_Manager.ball  = Ball()
 Wall_Top()
 Wall_Left()
 Wall_Right()
-
+Bricks()
 
 
 # game loop
