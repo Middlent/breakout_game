@@ -14,11 +14,18 @@ class Game_Manager():
 
     player = None
     ball = None
+    bricks = None
+    score_object = None
+    
 
     def start_game():
         Game_Manager.game_started = True
         Game_Manager.score = 0
         Game_Manager.lives = 3
+
+    def add_score(value):
+        Game_Manager.score += value
+        Game_Manager.score_object.update_score()
 
     def update_screen_size():
         info = pygame.display.Info()

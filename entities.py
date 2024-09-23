@@ -42,6 +42,12 @@ class Player():
             if event.key == pygame.K_RIGHT:
                 self.move_right = False
 
+    
+    def destroy(self):
+        Game_Manager.draw[1].remove(self.draw)
+        Game_Manager.event.remove(self.event)
+        Game_Manager.process.remove(self.process)
+
     def process(self):
         # Right movement
         if self.move_right and not self.move_left:
@@ -71,6 +77,7 @@ class Player():
 
 class Bricks():
     def __init__(self):
+        self.bricks = set()
         color = RED
         for i in range(8):
             if i == 2:
@@ -80,10 +87,17 @@ class Bricks():
             if i == 6:
                 color = YELLOW
             for j in range(14):
-                Brick(color,(
+                self.bricks.add(Brick(color,(
                     j * (Game_Manager.screen_width * 0.95)/14 + 0.025 * Game_Manager.screen_height,
                     i * 0.025 * Game_Manager.screen_height + 0.2 * Game_Manager.screen_height
-                    ))
+                    )))
+                
+    def destroy(self):
+        destroy_queue = []
+        for brick in self.bricks:
+            destroy_queue.append(brick.destroy)
+        for destroy in destroy_queue:
+            destroy()
 
 class Brick():
     def __init__(self, color, pos):
@@ -103,18 +117,23 @@ class Brick():
             if(Game_Manager.game_started):
                 if self.color == YELLOW:
                     Game_Manager.ball.speed += 0.0001 * Game_Manager.screen_width
+                    Game_Manager.add_score(1)
                 if self.color == GREEN:
                     Game_Manager.ball.speed += 0.0005 * Game_Manager.screen_width
+                    Game_Manager.add_score(3)
                 if self.color == ORANGE:
                     Game_Manager.ball.speed += 0.0009 * Game_Manager.screen_width
+                    Game_Manager.add_score(5)
                 if self.color == RED:
                     Game_Manager.ball.speed += 0.0013 * Game_Manager.screen_width
+                    Game_Manager.add_score(7)
                 Game_Manager.ball.returning = True
                 self.destroy()
     
     def destroy(self):
         Game_Manager.draw[1].remove(self.draw)
         Game_Manager.process.remove(self.process)
+        Game_Manager.bricks.bricks.remove(self)
 
     def draw(self, screen):
         pygame.draw.rect(screen, self.color, self.rect)
@@ -155,6 +174,18 @@ class Ball():
 
         self.rect.y += self.speed_v
         self.rect.x += self.speed_h
+
+        if self.rect.y >= Game_Manager.screen_height:
+            Game_Manager.lives -= 1
+            self.destroy()
+            Game_Manager.ball = Ball()
+            if Game_Manager.lives == 0:
+                Game_Manager.player.destroy()
+                Placeholder()
+                Game_Manager.game_started = False
+                Game_Manager.bricks.destroy()
+                Game_Manager.bricks = Bricks()
+                
 
     def destroy(self):
         Game_Manager.draw[1].remove(self.draw)
@@ -210,6 +241,10 @@ class Placeholder():
                 Game_Manager.player = Player()
                 Game_Manager.ball.destroy()
                 Game_Manager.ball = Ball()
+                Game_Manager.score_object.destroy()
+                Game_Manager.score_object = Score()
+                Game_Manager.bricks.destroy()
+                Game_Manager.bricks = Bricks()
 
         
     def destroy(self):
@@ -224,3 +259,22 @@ class Placeholder():
     
     def draw(self, screen):
         pygame.draw.rect(screen, BLUE, self.rect)
+
+class Score():
+    def __init__(self):
+        self.score_font = pygame.font.Font('assets/PressStart2P.ttf', 44)
+        self.update_score()
+
+        Game_Manager.draw[1].append(self.draw)
+    
+    def destroy(self):
+        Game_Manager.draw[1].remove(self.draw)
+
+    def update_score(self):
+        self.score_text = self.score_font.render(str(Game_Manager.score), True, WHITE, BLACK)
+        self.score_text_rect = self.score_text.get_rect()
+        self.score_text_rect.center = (0.1 * Game_Manager.screen_width,
+                            0.1 * Game_Manager.screen_height)
+
+    def draw(self, screen):
+        screen.blit(self.score_text, self.score_text_rect)       
